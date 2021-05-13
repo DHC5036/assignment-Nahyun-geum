@@ -1,0 +1,132 @@
+
+!pip install d2l
+import torch
+from torch import nn
+from d2l import torch as d2l
+​
+batch_size, max_window_size, num_noise_words = 512, 5, 5
+data_iter, vocab = d2l.load_data_ptb(batch_size, max_window_size,
+                                     num_noise_words)
+Requirement already satisfied: d2l in /opt/anaconda3/lib/python3.8/site-packages (0.16.2)
+Requirement already satisfied: matplotlib in /opt/anaconda3/lib/python3.8/site-packages (from d2l) (3.3.2)
+Requirement already satisfied: requests in /opt/anaconda3/lib/python3.8/site-packages (from d2l) (2.24.0)
+Requirement already satisfied: pandas in /opt/anaconda3/lib/python3.8/site-packages (from d2l) (1.1.3)
+Requirement already satisfied: numpy in /opt/anaconda3/lib/python3.8/site-packages (from d2l) (1.19.2)
+Requirement already satisfied: jupyter in /opt/anaconda3/lib/python3.8/site-packages (from d2l) (1.0.0)
+Requirement already satisfied: cycler>=0.10 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (0.10.0)
+Requirement already satisfied: pillow>=6.2.0 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (8.0.1)
+Requirement already satisfied: certifi>=2020.06.20 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (2020.6.20)
+Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.3 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (2.4.7)
+Requirement already satisfied: python-dateutil>=2.1 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (2.8.1)
+Requirement already satisfied: kiwisolver>=1.0.1 in /opt/anaconda3/lib/python3.8/site-packages (from matplotlib->d2l) (1.3.0)
+Requirement already satisfied: chardet<4,>=3.0.2 in /opt/anaconda3/lib/python3.8/site-packages (from requests->d2l) (3.0.4)
+Requirement already satisfied: urllib3!=1.25.0,!=1.25.1,<1.26,>=1.21.1 in /opt/anaconda3/lib/python3.8/site-packages (from requests->d2l) (1.25.11)
+Requirement already satisfied: idna<3,>=2.5 in /opt/anaconda3/lib/python3.8/site-packages (from requests->d2l) (2.10)
+Requirement already satisfied: pytz>=2017.2 in /opt/anaconda3/lib/python3.8/site-packages (from pandas->d2l) (2020.1)
+Requirement already satisfied: ipykernel in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (5.3.4)
+Requirement already satisfied: nbconvert in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (6.0.7)
+Requirement already satisfied: notebook in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (6.1.4)
+Requirement already satisfied: qtconsole in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (4.7.7)
+Requirement already satisfied: ipywidgets in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (7.5.1)
+Requirement already satisfied: jupyter-console in /opt/anaconda3/lib/python3.8/site-packages (from jupyter->d2l) (6.2.0)
+Requirement already satisfied: six in /opt/anaconda3/lib/python3.8/site-packages (from cycler>=0.10->matplotlib->d2l) (1.15.0)
+Requirement already satisfied: traitlets>=4.1.0 in /opt/anaconda3/lib/python3.8/site-packages (from ipykernel->jupyter->d2l) (5.0.5)
+Requirement already satisfied: jupyter-client in /opt/anaconda3/lib/python3.8/site-packages (from ipykernel->jupyter->d2l) (6.1.7)
+Requirement already satisfied: appnope; platform_system == "Darwin" in /opt/anaconda3/lib/python3.8/site-packages (from ipykernel->jupyter->d2l) (0.1.0)
+Requirement already satisfied: tornado>=4.2 in /opt/anaconda3/lib/python3.8/site-packages (from ipykernel->jupyter->d2l) (6.0.4)
+Requirement already satisfied: ipython>=5.0.0 in /opt/anaconda3/lib/python3.8/site-packages (from ipykernel->jupyter->d2l) (7.19.0)
+Requirement already satisfied: defusedxml in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.6.0)
+Requirement already satisfied: entrypoints>=0.2.2 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.3)
+Requirement already satisfied: pygments>=2.4.1 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (2.7.2)
+Requirement already satisfied: jupyter-core in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (4.6.3)
+Requirement already satisfied: testpath in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.4.4)
+Requirement already satisfied: nbformat>=4.4 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (5.0.8)
+Requirement already satisfied: pandocfilters>=1.4.1 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (1.4.3)
+Requirement already satisfied: nbclient<0.6.0,>=0.5.0 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.5.1)
+Requirement already satisfied: jupyterlab-pygments in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.1.2)
+Requirement already satisfied: bleach in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (3.2.1)
+Requirement already satisfied: mistune<2,>=0.8.1 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (0.8.4)
+Requirement already satisfied: jinja2>=2.4 in /opt/anaconda3/lib/python3.8/site-packages (from nbconvert->jupyter->d2l) (2.11.2)
+Requirement already satisfied: pyzmq>=17 in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (19.0.2)
+Requirement already satisfied: terminado>=0.8.3 in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (0.9.1)
+Requirement already satisfied: Send2Trash in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (1.5.0)
+Requirement already satisfied: ipython-genutils in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (0.2.0)
+Requirement already satisfied: prometheus-client in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (0.8.0)
+Requirement already satisfied: argon2-cffi in /opt/anaconda3/lib/python3.8/site-packages (from notebook->jupyter->d2l) (20.1.0)
+Requirement already satisfied: qtpy in /opt/anaconda3/lib/python3.8/site-packages (from qtconsole->jupyter->d2l) (1.9.0)
+Requirement already satisfied: widgetsnbextension~=3.5.0 in /opt/anaconda3/lib/python3.8/site-packages (from ipywidgets->jupyter->d2l) (3.5.1)
+Requirement already satisfied: prompt-toolkit!=3.0.0,!=3.0.1,<3.1.0,>=2.0.0 in /opt/anaconda3/lib/python3.8/site-packages (from jupyter-console->jupyter->d2l) (3.0.8)
+Requirement already satisfied: setuptools>=18.5 in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (50.3.1.post20201107)
+Requirement already satisfied: pickleshare in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (0.7.5)
+Requirement already satisfied: decorator in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (4.4.2)
+Requirement already satisfied: jedi>=0.10 in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (0.17.1)
+Requirement already satisfied: backcall in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (0.2.0)
+Requirement already satisfied: pexpect>4.3; sys_platform != "win32" in /opt/anaconda3/lib/python3.8/site-packages (from ipython>=5.0.0->ipykernel->jupyter->d2l) (4.8.0)
+Requirement already satisfied: jsonschema!=2.5.0,>=2.4 in /opt/anaconda3/lib/python3.8/site-packages (from nbformat>=4.4->nbconvert->jupyter->d2l) (3.2.0)
+Requirement already satisfied: nest-asyncio in /opt/anaconda3/lib/python3.8/site-packages (from nbclient<0.6.0,>=0.5.0->nbconvert->jupyter->d2l) (1.4.2)
+Requirement already satisfied: async-generator in /opt/anaconda3/lib/python3.8/site-packages (from nbclient<0.6.0,>=0.5.0->nbconvert->jupyter->d2l) (1.10)
+Requirement already satisfied: packaging in /opt/anaconda3/lib/python3.8/site-packages (from bleach->nbconvert->jupyter->d2l) (20.4)
+Requirement already satisfied: webencodings in /opt/anaconda3/lib/python3.8/site-packages (from bleach->nbconvert->jupyter->d2l) (0.5.1)
+Requirement already satisfied: MarkupSafe>=0.23 in /opt/anaconda3/lib/python3.8/site-packages (from jinja2>=2.4->nbconvert->jupyter->d2l) (1.1.1)
+Requirement already satisfied: ptyprocess in /opt/anaconda3/lib/python3.8/site-packages (from terminado>=0.8.3->notebook->jupyter->d2l) (0.6.0)
+Requirement already satisfied: cffi>=1.0.0 in /opt/anaconda3/lib/python3.8/site-packages (from argon2-cffi->notebook->jupyter->d2l) (1.14.3)
+Requirement already satisfied: wcwidth in /opt/anaconda3/lib/python3.8/site-packages (from prompt-toolkit!=3.0.0,!=3.0.1,<3.1.0,>=2.0.0->jupyter-console->jupyter->d2l) (0.2.5)
+Requirement already satisfied: parso<0.8.0,>=0.7.0 in /opt/anaconda3/lib/python3.8/site-packages (from jedi>=0.10->ipython>=5.0.0->ipykernel->jupyter->d2l) (0.7.0)
+Requirement already satisfied: pyrsistent>=0.14.0 in /opt/anaconda3/lib/python3.8/site-packages (from jsonschema!=2.5.0,>=2.4->nbformat>=4.4->nbconvert->jupyter->d2l) (0.17.3)
+Requirement already satisfied: attrs>=17.4.0 in /opt/anaconda3/lib/python3.8/site-packages (from jsonschema!=2.5.0,>=2.4->nbformat>=4.4->nbconvert->jupyter->d2l) (20.3.0)
+Requirement already satisfied: pycparser in /opt/anaconda3/lib/python3.8/site-packages (from cffi>=1.0.0->argon2-cffi->notebook->jupyter->d2l) (2.20)
+In [25]:
+
+embed = nn.Embedding(num_embeddings=20, embedding_dim=4)
+print(f'Parameter embedding_weight ({embed.weight.shape}, '
+      'dtype={embed.weight.dtype})')
+Parameter embedding_weight (torch.Size([20, 4]), dtype={embed.weight.dtype})
+In [26]:
+
+x = torch.tensor([[1, 2, 3], [4, 5, 6]])
+embed(x)
+Out[26]:
+tensor([[[-1.8287,  0.4325, -0.6244, -0.5276],
+         [-0.2182,  0.6419,  0.3199, -1.2851],
+         [-1.1355,  1.8208, -0.3470, -0.8890]],
+
+        [[ 1.0553,  0.5105,  0.0072, -0.4391],
+         [ 0.8348, -0.1530, -0.3973, -0.6401],
+         [-0.5320,  0.9220, -0.0706, -0.7879]]], grad_fn=<EmbeddingBackward>)
+Implemented skip-gram to CBOW
+In [27]:
+
+def skip_gram(center, contexts_and_negatives, embed_v, embed_u):
+    v = embed_v(center)
+    u = embed_u(contexts_and_negatives)
+    pred = torch.bmm(v, u.permute(0, 2, 1))
+    return pred
+In [29]:
+
+skip_gram(torch.ones((2, 1), dtype=torch.long),
+          torch.ones((2, 4), dtype=torch.long), embed, embed).shape
+Out[29]:
+tensor([[[4.1994, 4.1994, 4.1994, 4.1994]],
+
+        [[4.1994, 4.1994, 4.1994, 4.1994]]], grad_fn=<BmmBackward0>)
+In [30]:
+
+class cbow(nn.Module):
+    def __init__(self, vocab_size, context_size, embedding_dim, hidden_size=128):
+        super(cbow, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.fn1 = nn.Linear(context_size*emb_dim, hidden_size)
+        self.fn2 = nn.Linear(hidden_size, vocab_size)
+    def forward(self, x, batch_size):
+        x = self.embedding(x).viw(batch_size, -1)
+        x = self.fcl(x)
+        x = F.relu(x)
+        x = self.fn2(x)
+        return x
+In [31]:
+
+model = cbow(vocab_siz=20, context_size=5, embeding_dim=4)
+
+word = torch.ones((2,5), dtype=torch.long)
+model.forward(word, 2)
+model.forward(word, 2)_shape
